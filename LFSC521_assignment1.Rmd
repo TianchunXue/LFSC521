@@ -1,0 +1,58 @@
+---
+title: "Assignment 1"
+author: "Tianchun Xue"
+date: "2/6/2022"
+output: github_document
+---
+
+# Load library
+```{r}
+library(tidyverse)
+library(dplyr)
+library(titanic)
+library(ggplot2)
+library(scales)
+```
+
+# Data input and organization
+I will use "titanic_trian" dataset from the 'titanic' package to do the following analysis.
+
+In this section, I will calculate the survival rate based on different genders.
+```{r}
+glimpse(titanic_train)
+gender_survive <- titanic_train %>%
+  group_by(Sex) %>%
+  summarise(Survived.count = sum(Survived))  %>%
+  mutate(Total.count = table(titanic_train$Sex)) %>%
+  mutate(Survival.rate = Survived.count/Total.count)
+```
+
+```{r}
+gender_survive <- as.data.frame(gender_survive)
+gender_survive
+```
+From the table, we can know that 233 female passengers survived out of all 314 female passengers, and only 109 male passengers survived out of all 577 male passengers.
+
+# Data visualization
+I will visualize the survival rate by gender by "ggplot2"
+
+First, I will convert "integer" into "factor", for later filling the gender groups with different survival states.
+```{r}
+titanic_train$Survived <- as.factor(titanic_train$Survived)
+```
+
+Then, I will generate a bar plot to show the survival rates of different gender.
+```{r}
+ggplot(data= titanic_train,aes(x=Sex, fill=Survived))+
+  geom_bar()+
+  scale_fill_brewer(palette = 'Paired')+
+  annotate(geom="text", x= 1, y=250, label=percent(gender_survive[1,4]),
+              color="white")+
+  annotate(geom="text", x= 2, y=130, label=percent(gender_survive[2,4]),
+              color="white")+
+  labs(y = "Number of Passengers", title = "Survival Rate by Gender")+
+  theme_classic()
+```
+
+Here, "0" of survival states refers to death, and "1" means survival. We can see the x-axis contains two groups, female and male. And the y-axis is the number of passengers. There are more male passengers than female passengers, but the survival rate of male passengers (19%) is much lower than that of female passengers (74%).
+
